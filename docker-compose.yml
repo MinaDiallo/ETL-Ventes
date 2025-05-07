@@ -26,16 +26,20 @@ services:
         condition: service_healthy
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres/airflow
-      - AIRFLOW__CORE__FERNET_KEY=''
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres/airflow_db
+      - AIRFLOW__CORE__FERNET_KEY='jbw24LzqsD2dGCgfakDvzeZDGTLaKr3zpMjyvxNqSME='
       - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=True
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
       - AIRFLOW_CONN_POSTGRES_DEFAULT=postgresql://postgres:postgres@postgres:5432/sales_db
+      - AIRFLOW__WEBSERVER__SECRET_KEY='my_super_key'  # Ajoutez cette ligne
+      - AIRFLOW__LOGGING__BASE_LOG_FOLDER=/opt/airflow/logs
+      - AIRFLOW__LOGGING__REMOTE_LOGGING=False
     volumes:
       - ./dags:/opt/airflow/dags
       - ./scripts:/opt/airflow/scripts
       - ./data:/opt/airflow/data
+      - ./logs:/opt/airflow/logs  
     ports:
       - "8080:8080"
     command: webserver
@@ -52,15 +56,19 @@ services:
         condition: service_healthy
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres/airflow
-      - AIRFLOW__CORE__FERNET_KEY=''
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres/airflow_db
+      - AIRFLOW__CORE__FERNET_KEY='jbw24LzqsD2dGCgfakDvzeZDGTLaKr3zpMjyvxNqSME='
       - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=True
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW_CONN_POSTGRES_DEFAULT=postgresql://postgres:postgres@postgres:5432/sales_db
+      - AIRFLOW__WEBSERVER__SECRET_KEY='my_super_key'  # Ajoutez cette ligne
+      - AIRFLOW__LOGGING__BASE_LOG_FOLDER=/opt/airflow/logs
+      - AIRFLOW__LOGGING__REMOTE_LOGGING=False
     volumes:
       - ./dags:/opt/airflow/dags
       - ./scripts:/opt/airflow/scripts
       - ./data:/opt/airflow/data
+      - ./logs:/opt/airflow/logs  # Ajoutez ce volume pour les logs
     command: scheduler
 
 volumes:

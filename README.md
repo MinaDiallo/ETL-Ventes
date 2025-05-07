@@ -47,8 +47,8 @@ Copy
 Execute
 
 Initialisez la base de données Airflow (première exécution uniquement):
-docker-compose exec airflow-webserver airflow db init
-
+docker-compose exec airflow-webserver airflow db init(important)
+docker-compose run airflow-webserver airflow db init
 Copy
 Execute
 

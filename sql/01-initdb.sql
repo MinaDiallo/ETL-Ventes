@@ -1,3 +1,6 @@
+-- Créer un schéma pour Airflow
+CREATE SCHEMA IF NOT EXISTS airflow;
+
 -- Création des tables pour les données de ventes
 
 -- Table principale des ventes

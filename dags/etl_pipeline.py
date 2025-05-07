@@ -79,7 +79,7 @@ def transform_task_function(ti):
         'product_agg': product_agg.to_json(),
         'time_agg': time_agg.to_json()
     }
-    
+    print("Transformation réussie.", result)
     return result
 
 transform_task = PythonOperator(
