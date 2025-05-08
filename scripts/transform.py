@@ -112,10 +112,11 @@ def transform_data(df=None):
     
     # 4. Création de nouvelles colonnes utiles pour l'analyse
     
-    # Calculer le montant total par ligne de commande
-    if 'quantity' in df.columns and 'unit_price' in df.columns:
-        df['line_total'] = df['quantity'] * df['unit_price']
-        print("Colonne 'line_total' créée (quantity * unit_price)")
+    # Calculer le montant total par ligne de commande si sales n'existe pas
+    # Vérifier si la colonne sales existe, sinon la calculer
+    if 'sales' not in df.columns and 'quantity' in df.columns and 'unit_price' in df.columns:
+        df['sales'] = df['quantity'] * df['unit_price']
+        print("Colonne 'sales' créée (quantity * unit_price)")
     
     # Calculer la marge par produit
     if 'unit_price' in df.columns and 'suggested_retail_price' in df.columns:
@@ -149,65 +150,40 @@ def transform_data(df=None):
     # Créer un DataFrame d'agrégation par client
     # MODIFICATION: Utiliser reset_index() et renommer les colonnes manuellement
     customer_agg = df.groupby('customer_name').agg({
-    'order_number': pd.Series.nunique,
-    'line_total': 'sum',
-    'quantity': 'sum',
-    'order_date': ['min', 'max']
-    }).reset_index()
+        'order_number': 'nunique',
+        'sales': 'sum',
+        'quantity': 'sum',
+        'order_date': ['min', 'max']
+    })
 
-    # Renommer les colonnes
-    customer_agg.columns = ['customer_name', 'total_orders', 'total_sales', 'total_quantity', 'first_order', 'last_order']
+    # Aplatir les colonnes multi-index et les renommer
+    customer_agg.columns = ['total_orders', 'total_sales', 'total_quantity', 'first_order', 'last_order']
+    customer_agg = customer_agg.reset_index()
 
     # Calculer la durée entre la première et la dernière commande
     customer_agg['customer_lifetime_days'] = (customer_agg['last_order'] - customer_agg['first_order']).dt.days
 
-    # Créer un DataFrame d'agrégation par produit - CORRECTION
-    product_columns = {
-        'quantity': 'total_quantity',
-        'line_total': 'total_revenue',
-        'order_number': 'order_count',
-        'customer_name': 'customer_count'
-    }
+    # CORRECTION: Créer un DataFrame d'agrégation par produit en une seule opération
+    product_agg = df.groupby('product_code').agg({
+        'quantity': 'sum',
+        'sales': 'sum',
+        'order_number': 'nunique',
+        'customer_name': 'nunique'
+    }).reset_index()
 
-    product_agg = pd.DataFrame()
-    product_agg['product_code'] = df['product_code'].unique()
+    # Renommer les colonnes
+    product_agg.columns = ['product_code', 'total_quantity', 'total_revenue', 'order_count', 'customer_count']
 
-    for col, new_name in product_columns.items():
-        if col == 'order_number' or col == 'customer_name':
-            # Pour les colonnes qui nécessitent nunique
-            temp_df = df.groupby('product_code')[col].nunique().reset_index()
-            temp_df.columns = ['product_code', new_name]
-        else:
-            # Pour les colonnes qui nécessitent sum
-            temp_df = df.groupby('product_code')[col].sum().reset_index()
-            temp_df.columns = ['product_code', new_name]
-    
-    # Fusionner avec product_agg
-    product_agg = product_agg.merge(temp_df, on='product_code', how='left')
+    # CORRECTION: Créer un DataFrame d'agrégation temporelle (par mois) en une seule opération
+    time_agg = df.groupby(['year', 'month']).agg({
+        'sales': 'sum',
+        'order_number': 'nunique',
+        'customer_name': 'nunique',
+        'quantity': 'sum'
+    }).reset_index()
 
-    # Créer un DataFrame d'agrégation temporelle (par mois) - CORRECTION
-    time_columns = {
-        'line_total': 'total_sales',
-        'order_number': 'order_count',
-        'customer_name': 'customer_count',
-        'quantity': 'total_quantity'
-    }
-
-    # Créer d'abord un DataFrame avec les combinaisons uniques de year et month
-    time_agg = df[['year', 'month']].drop_duplicates().reset_index(drop=True)
-
-    for col, new_name in time_columns.items():
-        if col == 'order_number' or col == 'customer_name':
-            # Pour les colonnes qui nécessitent nunique
-            temp_df = df.groupby(['year', 'month'])[col].nunique().reset_index()
-            temp_df.columns = ['year', 'month', new_name]
-        else:
-            # Pour les colonnes qui nécessitent sum
-            temp_df = df.groupby(['year', 'month'])[col].sum().reset_index()
-            temp_df.columns = ['year', 'month', new_name]
-    
-    # Fusionner avec time_agg
-    time_agg = time_agg.merge(temp_df, on=['year', 'month'], how='left')
+    # Renommer les colonnes
+    time_agg.columns = ['year', 'month', 'total_sales', 'order_count', 'customer_count', 'quantity']
     
     # 7. Sauvegarder les données transformées
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -247,7 +223,7 @@ def main():
         print(f"Nombre total de commandes: {df['order_number'].nunique()}")
         print(f"Nombre total de clients: {df['customer_name'].nunique()}")
         print(f"Période couverte: {df['order_date'].min()} à {df['order_date'].max()}")
-        print(f"Chiffre d'affaires total: {df['line_total'].sum():.2f}")
+        print(f"Chiffre d'affaires total: {df['sales'].sum():.2f}")
         
         # Top 5 des clients
         top_customers = customer_agg.sort_values('total_sales', ascending=False).head(5)

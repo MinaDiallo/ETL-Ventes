@@ -59,18 +59,10 @@ def load_data(df, customer_agg, product_agg, time_agg):
     print(time_agg.columns)
     
     try:
-            
         # Vider les tables existantes avant d'insérer les nouvelles données
-        # Utiliser text() pour créer un objet SQL exécutable
-        with engine.connect() as connection:
-            # Méthode 1 : Utiliser text() (pour SQLAlchemy 1.4+)
+        with engine.begin() as connection:
+            # Utiliser text() pour créer un objet SQL exécutable
             connection.execute(text("TRUNCATE TABLE sales_data, customer_aggregations, product_aggregations, time_aggregations RESTART IDENTITY CASCADE"))
-            # Ou méthode 2 : Exécuter chaque table séparément
-            # connection.execute(text("TRUNCATE TABLE sales_data RESTART IDENTITY CASCADE"))
-            # connection.execute(text("TRUNCATE TABLE customer_aggregations RESTART IDENTITY CASCADE"))
-            # connection.execute(text("TRUNCATE TABLE product_aggregations RESTART IDENTITY CASCADE"))
-            # connection.execute(text("TRUNCATE TABLE time_aggregations RESTART IDENTITY CASCADE"))
-            connection.commit()  # Important : commit les changements
             print("Tables vidées avec succès.")
         
         # Charger les données principales

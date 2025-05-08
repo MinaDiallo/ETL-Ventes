@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS sales_data (
     contact_first_name VARCHAR(100),
     deal_size VARCHAR(20),
     line_total NUMERIC(12, 2),
+    sales NUMERIC(12, 2), 
     margin NUMERIC(10, 2),
     margin_percentage NUMERIC(10, 2),
     order_year INTEGER,
@@ -67,9 +68,9 @@ CREATE TABLE IF NOT EXISTS time_aggregations (
     id SERIAL PRIMARY KEY,
     year INTEGER,
     month INTEGER,
-    line_total NUMERIC(14, 2),
-    order_number INTEGER,
-    customer_name INTEGER,
+    total_sales NUMERIC(14, 2),
+    order_count INTEGER,
+    customer_count INTEGER,
     quantity INTEGER
 );
 
