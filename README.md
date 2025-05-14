@@ -60,7 +60,7 @@ Le système est composé de trois services principaux, tous orchestrés via Dock
 
 1. Clonez le dépôt :
    ```bash
-   git clone https://github.com/votre-username/Automatisation_TB_PME.git
+   git clone https://github.com/MinaDiallo/Sales-ETL-Pipeline
    ```
 
 2. Naviguez vers le répertoire du projet :
@@ -199,4 +199,4 @@ Ce projet est sous licence [précisez la licence] - voir le fichier LICENSE pour
 
 Aminata DIALLO - amitad.diallo@gmail.com
 
-Lien du projet : https://github.com/votre-username/Automatisation_TB_PME
+Lien du projet : https://github.com/MinaDiallo/Sales-ETL-Pipeline
