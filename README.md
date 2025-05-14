@@ -193,8 +193,7 @@ Les contributions sont les bienvenues ! N'hésitez pas à :
 
 ## Licence
 
-Ce projet est sous licence [précisez la licence] - voir le fichier LICENSE pour plus de détails.
-
+Ce projet est sous licence V0
 ## Contact
 
 Aminata DIALLO - amitad.diallo@gmail.com
