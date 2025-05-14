@@ -77,7 +77,7 @@ La connexion PostgreSQL est définie dans `docker-compose.yml` :
 - **Utilisateur** : `postgres`
 - **Mot de passe** : `postgres`
 
-![Diagramme de Classe](./images/diag-classe.png)
+![Diagramme de Classe](./images/Diag-classe.png)
 *Diagramme de Classe*
 ---
 
