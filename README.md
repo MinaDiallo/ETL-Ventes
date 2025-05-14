@@ -158,6 +158,7 @@ Automatisation_TB_PME/
 │   ├── transform.py       # Fonctions de transformation
 │   └── load.py            # Fonctions de chargement
 ├── data/                  # Données source et transformées
+├── docs/                  # Capture et documentation technique
 ├── sql/                   # Scripts SQL d'initialisation
 ├── power_bi/              # Fichiers Power BI (.pbix)
 ├── docs/
