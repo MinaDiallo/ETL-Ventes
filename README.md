@@ -194,4 +194,5 @@ Ce projet est sous licence V0
 
 Aminata DIALLO - amitad.diallo@gmail.com
 
-Lien du projet : https://github.com/MinaDiallo/Sales-ETL-Pipeline
+Lien du projet : https://github.com/MinaDiallo/sales-etl
+
