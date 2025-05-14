@@ -21,7 +21,7 @@ L'objectif principal est de fournir aux TPE/PME un outil simple mais puissant po
 
 ![Schéma de la base de données](./docs/images/Diag-classe.png)
 
-* Modèle relationnel des données de ventes dans PostgreSQL*
+*Modèle relationnel des données de ventes dans PostgreSQL*
 
 ## Technologies Utilisées
 
