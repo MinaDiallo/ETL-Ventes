@@ -14,22 +14,12 @@ L'objectif principal est de fournir aux TPE/PME un outil simple mais puissant po
 
 ### Vue d'ensemble des performances de ventes
 
-![Vue d'ensemble des ventes](./docs/images/dashboard_overview.png)
-*Tableau de bord principal montrant les KPIs de ventes et les tendances temporelles*
+![Vue d'ensemble des ventes](./docs/images/Visuel_data_sales.png)
 
-### Analyse client et segmentation
-
-![Analyse client](./docs/images/customer_analysis.png)
-*Segmentation des clients et analyse de la valeur client à vie (CLV)*
-
-### Performance des produits
-
-![Performance produit](./docs/images/product_performance.png)
-*Analyse détaillée des performances par produit et catégorie*
 
 ### Structure de la base de données
 
-![Schéma de la base de données](./docs/images/database_schema.png)
+![Schéma de la base de données](./docs/images/Diag-classe.png)
 *Modèle relationnel des données de ventes dans PostgreSQL*
 
 ## Technologies Utilisées
