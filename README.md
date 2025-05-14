@@ -10,7 +10,7 @@ L'objectif principal est de fournir aux TPE/PME un outil simple mais puissant po
 - Centraliser les données dans une base structurée
 - Faciliter la prise de décision basée sur les données
 
-## Captures d'écran des visualisations
+## Visualisations
 
 ### Vue d'ensemble des performances de ventes
 
@@ -20,6 +20,7 @@ L'objectif principal est de fournir aux TPE/PME un outil simple mais puissant po
 ### Structure de la base de données
 
 ![Schéma de la base de données](./docs/images/Diag-classe.png)
+
 *Modèle relationnel des données de ventes dans PostgreSQL*
 
 ## Technologies Utilisées
