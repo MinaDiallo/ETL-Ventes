@@ -78,7 +78,7 @@ La connexion PostgreSQL est définie dans `docker-compose.yml` :
 - **Mot de passe** : `postgres`
 
 ![Diagramme de Classe](./images/Diag-classe.png)
-*Diagramme de Classe*
+
 ---
 
 ## Pipeline ETL avec Apache Airflow
@@ -98,6 +98,7 @@ Le pipeline est défini dans le fichier `dags/etl_pipeline.py` sous la forme d�
 ```python
 check_data_task >> extract_task >> transform_task >> load_task >> check_load_task
 ```
+![ETL Airflow](./images/ETL_OK.png)
 
 ### Configuration d'Airflow
 
