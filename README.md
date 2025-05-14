@@ -17,6 +17,10 @@ L'objectif principal est de fournir aux TPE/PME un outil simple mais puissant po
 ![Vue d'ensemble des ventes](./docs/images/Visuel_data_sales.png)
 
 
+### Télécharger vidéo ici
+![Vidéo d'ensemble des ventes](./docs/images/ETL-Ventes.mp4)
+
+
 ## Structure de la base de données
 
 ![Schéma de la base de données](./docs/images/Diag-classe.png)
