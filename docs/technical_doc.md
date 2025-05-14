@@ -196,6 +196,7 @@ Défini dans `docker-compose.yml` et `Dockerfile`.
 - Dépendances Python via `requirements.txt`
 - Répertoire de travail : `/app`
 
+![Diagramme de Classe](./images/conteneur_docker.png)
 ---
 
 ## Maintenance et dépannage
