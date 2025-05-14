@@ -95,13 +95,14 @@ Le pipeline est défini dans le fichier `dags/etl_pipeline.py` sous la forme d�
 
 ```python
 check_data_task >> extract_task >> transform_task >> load_task >> check_load_task
+```
 
 ### Configuration d'Airflow
 
-Airflow est configuré dans le fichier `docker-compose.yml` avec les paramètres suivants :
+Paramètres dans `docker-compose.yml` :
 
 - **Exécuteur** : `LocalExecutor`
-- **Connexion à la base de données** : `postgresql+psycopg2://postgres:postgres@postgres/airflow_db`
+- **Connexion DB** : `postgresql+psycopg2://postgres:postgres@postgres/airflow_db`
 - **Clé Fernet** : `jbw24LzqsD2dGCgfakDvzeZDGTLaKr3zpMjyvxNqSME=`
 - **Connexion PostgreSQL** : `postgresql://postgres:postgres@postgres:5432/sales_db`
 
@@ -109,92 +110,88 @@ Airflow est configuré dans le fichier `docker-compose.yml` avec les paramètres
 
 ## Processus d'extraction des données
 
-Le processus d'extraction est implémenté dans le fichier `scripts/extract.py` et comprend les étapes suivantes :
+Implémenté dans `scripts/extract.py` :
 
-- **Localisation du fichier source** : Recherche du fichier CSV dans le répertoire `data/`
-- **Détection de l'encodage** : Tentative de lecture avec différents encodages (`latin-1`, `ISO-8859-1`, `cp1252`, `utf-8-sig`, `utf-16`)
-- **Détection automatique du séparateur** : Utilisation de l'option `sep=None` avec le moteur `python`
-- **Chargement des données** : Lecture du fichier CSV dans un DataFrame `pandas`
+- Recherche du fichier dans `data/`
+- Détection de l’encodage (`latin-1`, `ISO-8859-1`, `cp1252`, `utf-8-sig`, `utf-16`)
+- Détection automatique du séparateur (`sep=None`)
+- Chargement dans un `DataFrame` pandas
 
-**Particularités techniques :**
-
+### Particularités techniques :
 - Gestion robuste des erreurs d'encodage
 - Détection automatique du format CSV
-- Vérification de l'existence du fichier source
+- Vérification de l’existence du fichier source
 
 ---
 
 ## Processus de transformation des données
 
-Le processus de transformation est implémenté dans le fichier `scripts/transform.py` et comprend les étapes suivantes :
+Implémenté dans `scripts/transform.py` :
 
 - Standardisation des noms de colonnes
 - Correction des types de données
-- Gestion des valeurs manquantes
-- Création de colonnes dérivées
-- Détection et gestion des valeurs aberrantes
-- Création d’agrégations
+- Gestion des valeurs manquantes (médiane ou "Unknown")
+- Création de colonnes dérivées (`sales`, `margin`, etc.)
+- Détection et traitement des valeurs aberrantes (IQR)
+- Création des tables d'agrégations
 
-**Agrégations principales :**
-
-- **Par client** : Nombre de commandes, ventes totales, quantité totale, première et dernière commande, durée de vie client
-- **Par produit** : Quantité totale, revenu total, nombre de commandes, nombre de clients
-- **Temporelle** : Ventes totales, nombre de commandes, nombre de clients, quantité par année et mois
+### Agrégations principales :
+- **Client** : commandes, ventes, quantité, durée de vie client
+- **Produit** : quantités, revenus, commandes, clients
+- **Temporelle** : ventes, commandes, clients par année et mois
 
 ---
 
 ## Processus de chargement des données
 
-Le processus de chargement est implémenté dans le fichier `scripts/load.py` et comprend les étapes suivantes :
+Implémenté dans `scripts/load.py` :
 
-- Connexion à PostgreSQL
-- Nettoyage des tables existantes
-- Chargement par lots
-- Enregistrement des métadonnées
+- Connexion PostgreSQL avec gestion des tentatives
+- Troncature des tables avant chargement
+- Chargement par lots (`to_sql(chunksize=1000)`)
+- Enregistrement des métadonnées (`etl_metadata`)
 
-**Optimisations techniques :**
-
-- Chargement par lots pour gérer les grands volumes de données
-- Gestion des tentatives de connexion avec délai d'attente
-- Utilisation de transactions pour garantir l'intégrité des données
+### Optimisations techniques :
+- Chargement par lots pour gros volumes
+- Transactions PostgreSQL
+- Attente et retries sur la connexion
 
 ---
 
 ## Environnement Docker
 
-L’environnement est défini dans les fichiers `docker-compose.yml` et `Dockerfile`.
+Défini dans `docker-compose.yml` et `Dockerfile`.
 
 ### Services Docker
 
-#### postgres
+- **postgres** :
+  - Image : `postgres:14`
+  - Volumes :
+    - `postgres_data:/var/lib/postgresql/data`
+    - `./sql:/docker-entrypoint-initdb.d`
+  - Ports : `5432:5432`
 
-- **Image** : `postgres:14`
-- **Volumes** :
-  - `postgres_data:/var/lib/postgresql/data`
-  - `./sql:/docker-entrypoint-initdb.d`
-- **Ports** : `5432:5432`
+- **airflow-webserver** :
+  - Image : `apache/airflow:2.6.3`
+  - Volumes :
+    - `./dags:/opt/airflow/dags`
+    - `./scripts:/opt/airflow/scripts`
+    - `./data:/opt/airflow/data`
+    - `./logs:/opt/airflow/logs`
+  - Ports : `8080:8080`
 
-#### airflow-webserver
-
-- **Image** : `apache/airflow:2.6.3`
-- **Volumes** :
-  - `./dags:/opt/airflow/dags`
-  - `./scripts:/opt/airflow/scripts`
-  - `./data:/opt/airflow/data`
-  - `./logs:/opt/airflow/logs`
-- **Ports** : `8080:8080`
-
-#### airflow-scheduler
-
-- Même image et volumes que `airflow-webserver`
+- **airflow-scheduler** :
+  - Image : `apache/airflow:2.6.3`
+  - Volumes identiques au webserver
 
 ### Image Docker personnalisée
 
-Le `Dockerfile` définit une image Python 3.9 avec les dépendances nécessaires :
+- Basée sur Python 3.9
 
-- Installation des packages système pour `psycopg2`
-- Installation des dépendances Python depuis `requirements.txt`
-- Configuration du répertoire de travail `/app`
+### Installation :
+- Packages système (`gcc`, `libpq-dev`)
+- Dépendances Python via `requirements.txt`
+- Répertoire de travail : `/app`
 
 ---
 
@@ -202,49 +199,38 @@ Le `Dockerfile` définit une image Python 3.9 avec les dépendances nécessaires
 
 ### Surveillance du pipeline
 
-Le pipeline peut être surveillé via l’interface web Airflow à l’adresse `http://localhost:8080`.
+- Interface web : [http://localhost:8080](http://localhost:8080)
+- Logs :
+  - Airflow : onglet "Logs"
+  - Système de fichiers : `./logs`
 
-**Logs détaillés disponibles dans :**
+### Vérification de l'intégrité des données
 
-- Interface Airflow (onglet "Logs")
-- Répertoire `./logs`
-
-### Vérification de l’intégrité des données
-
-La tâche `check_load_task` exécute la requête SQL suivante :
+Requête SQL exécutée par `check_load_task` :
 
 ```sql
 SELECT
-  (SELECT COUNT(*) FROM sales_data) as sales_count,
-  (SELECT COUNT(*) FROM customer_aggregations) as customer_count,
-  (SELECT COUNT(*) FROM product_aggregations) as product_count,
-  (SELECT COUNT(*) FROM time_aggregations) as time_count;
+  (SELECT COUNT(*) FROM sales_data) AS sales_count,
+  (SELECT COUNT(*) FROM customer_aggregations) AS customer_count,
+  (SELECT COUNT(*) FROM product_aggregations) AS product_count,
+  (SELECT COUNT(*) FROM time_aggregations) AS time_count;
 ```
-
----
 
 ### Problèmes courants et solutions
 
-- **Échec de l'extraction** :
-  - Vérifier le fichier CSV dans `/opt/airflow/data/`
-  - Vérifier l'encodage
+- **Échec extraction** :
+  - Vérifier existence du fichier dans `/opt/airflow/data/`
+  - Vérifier encodage du fichier
 
-- **Échec de la transformation** :
+- **Échec transformation** :
   - Examiner les logs
-  - Vérifier la structure du fichier source
+  - Vérifier structure du fichier source
 
-- **Échec du chargement** :
-  - Vérifier la connexion PostgreSQL
-  - Vérifier les permissions
-  - Examiner les contraintes de schéma
+- **Échec chargement** :
+  - Vérifier connexion PostgreSQL
+  - Vérifier permissions et contraintes
 
 - **Problèmes de performance** :
   - Optimiser les index
   - Ajuster `chunksize`
-  - Allouer plus de ressources Docker
-
----
-
-## Conclusion
-
-Cette documentation technique fournit une vue d'ensemble complète de l'architecture et du fonctionnement du système d'automatisation ETL pour les ventes.
+  - Augmenter les ressources Docker
